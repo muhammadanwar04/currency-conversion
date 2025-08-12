@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World Currency Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .currency-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .search-highlight {
+        background-color: #fef08a;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <header class="bg-blue-600 text-white py-8">
+      <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-2">World Currency Converter</h1>
+        <p class="text-xl">Real-time exchange rates for global currencies</p>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      <!-- Conversion Tool -->
+      <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div class="flex flex-col md:flex-row gap-4">
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Amount</label
+            >
+            <input
+              type="number"
+              id="amount"
+              value="1"
+              min="0"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >From</label
+            >
+            <select
+              id="fromCurrency"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="USD">US Dollar (USD)</option>
+              <option value="EUR">Euro (EUR)</option>
+              <option value="GBP">British Pound (GBP)</option>
+              <option value="JPY">Japanese Yen (JPY)</option>
+              <option value="CNY">Chinese Yuan (CNY)</option>
+              <option value="IDR">Indonesian Rupiah (IDR)</option>
+              <option value="MYR">Malaysian Ringgit (MYR)</option>
+              <option value="SGD">Singapore Dollar (SGD)</option>
+              <option value="THB">Thai Baht (THB)</option>
+              <!-- More currencies will be added via JavaScript -->
+            </select>
+          </div>
+          <div class="flex items-center justify-center">
+            <button
+              id="swapCurrencies"
+              class="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                />
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >To</label
+            >
+            <select
+              id="toCurrency"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="IDR">Indonesian Rupiah (IDR)</option>
+              <option value="USD">US Dollar (USD)</option>
+              <option value="EUR">Euro (EUR)</option>
+              <option value="GBP">British Pound (GBP)</option>
+              <option value="JPY">Japanese Yen (JPY)</option>
+              <option value="CNY">Chinese Yuan (CNY)</option>
+              <option value="MYR">Malaysian Ringgit (MYR)</option>
+              <option value="SGD">Singapore Dollar (SGD)</option>
+              <option value="THB">Thai Baht (THB)</option>
+              <!-- More currencies will be added via JavaScript -->
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button
+              id="convertBtn"
+              class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition font-medium"
+            >
+              Convert
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="conversionResult"
+          class="mt-6 p-4 bg-gray-100 rounded-lg hidden"
+        >
+          <div class="text-xl font-semibold text-center">
+            <span id="fromAmount" class="text-blue-600">1</span>
+            <span id="fromCurrencyText" class="text-blue-600">USD</span> =
+            <span id="toAmount" class="text-green-600">14,500</span>
+            <span id="toCurrencyText" class="text-green-600">IDR</span>
+          </div>
+          <div id="rateInfo" class="text-sm text-gray-600 text-center mt-2">
+            1 USD = 14,500 IDR
+          </div>
+        </div>
+      </div>
+
+      <!-- Currency Search -->
+      <div class="mb-8">
+        <div class="relative">
+          <input
+            type="text"
+            id="currencySearch"
+            placeholder="Search for currencies..."
+            class="w-full p-4 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 absolute left-3 top-4 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <!-- All Currencies Grid -->
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+      >
+        <!-- Currency cards will be added via JavaScript -->
+      </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6">
+      <div class="container mx-auto px-4 text-center">
+        <p>Exchange rates are updated daily from reliable sources</p>
+        <p class="text-sm text-gray-400 mt-2">
+          &copy; 2023 World Currency Converter. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      // Sample currency data (in a real app, this would come from an API)
+      const currencies = [
+        {
+          code: "USD",
+          name: "US Dollar",
+          symbol: "$",
+          rateToUSD: 1,
+          flag: "🇺🇸",
+        },
+        { code: "EUR", name: "Euro", symbol: "€", rateToUSD: 0.85, flag: "🇪🇺" },
+        {
+          code: "GBP",
+          name: "British Pound",
+          symbol: "£",
+          rateToUSD: 0.73,
+          flag: "🇬🇧",
+        },
+        {
+          code: "JPY",
+          name: "Japanese Yen",
+          symbol: "¥",
+          rateToUSD: 110.23,
+          flag: "🇯🇵",
+        },
+        {
+          code: "AUD",
+          name: "Australian Dollar",
+          symbol: "A$",
+          rateToUSD: 1.35,
+          flag: "🇦🇺",
+        },
+        {
+          code: "CAD",
+          name: "Canadian Dollar",
+          symbol: "C$",
+          rateToUSD: 1.28,
+          flag: "🇨🇦",
+        },
+        {
+          code: "CHF",
+          name: "Swiss Franc",
+          symbol: "CHF",
+          rateToUSD: 0.92,
+          flag: "🇨🇭",
+        },
+        {
+          code: "CNY",
+          name: "Chinese Yuan",
+          symbol: "¥",
+          rateToUSD: 6.45,
+          flag: "🇨🇳",
+        },
+        {
+          code: "HKD",
+          name: "Hong Kong Dollar",
+          symbol: "HK$",
+          rateToUSD: 7.78,
+          flag: "🇭🇰",
+        },
+        {
+          code: "NZD",
+          name: "New Zealand Dollar",
+          symbol: "NZ$",
+          rateToUSD: 1.42,
+          flag: "🇳🇿",
+        },
+        {
+          code: "SEK",
+          name: "Swedish Krona",
+          symbol: "kr",
+          rateToUSD: 8.62,
+          flag: "🇸🇪",
+        },
+        {
+          code: "KRW",
+          name: "South Korean Won",
+          symbol: "₩",
+          rateToUSD: 1183.45,
+          flag: "🇰🇷",
+        },
+        {
+          code: "SGD",
+          name: "Singapore Dollar",
+          symbol: "S$",
+          rateToUSD: 1.35,
+          flag: "🇸🇬",
+        },
+        {
+          code: "NOK",
+          name: "Norwegian Krone",
+          symbol: "kr",
+          rateToUSD: 8.89,
+          flag: "🇳🇴",
+        },
+        {
+          code: "MXN",
+          name: "Mexican Peso",
+          symbol: "Mex$",
+          rateToUSD: 20.12,
+          flag: "🇲🇽",
+        },
+        {
+          code: "INR",
+          name: "Indian Rupee",
+          symbol: "₹",
+          rateToUSD: 74.23,
+          flag: "🇮🇳",
+        },
+        {
+          code: "RUB",
+          name: "Russian Ruble",
+          symbol: "₽",
+          rateToUSD: 73.45,
+          flag: "🇷🇺",
+        },
+        {
+          code: "ZAR",
+          name: "South African Rand",
+          symbol: "R",
+          rateToUSD: 14.89,
+          flag: "🇿🇦",
+        },
+        {
+          code: "AED",
+          name: "UAE Dirham",
+          symbol: "د.إ",
+          rateToUSD: 3.67,
+          flag: "🇦🇪",
+        },
+        {
+          code: "SAR",
+          name: "Saudi Riyal",
+          symbol: "ر.س",
+          rateToUSD: 3.75,
+          flag: "🇸🇦",
+        },
+        {
+          code: "THB",
+          name: "Thai Baht",
+          symbol: "฿",
+          rateToUSD: 33.12,
+          flag: "🇹🇭",
+        },
+        {
+          code: "MYR",
+          name: "Malaysian Ringgit",
+          symbol: "RM",
+          rateToUSD: 4.19,
+          flag: "🇲🇾",
+        },
+        {
+          code: "IDR",
+          name: "Indonesian Rupiah",
+          symbol: "Rp",
+          rateToUSD: 14250,
+          flag: "🇮🇩",
+        },
+        {
+          code: "PHP",
+          name: "Philippine Peso",
+          symbol: "₱",
+          rateToUSD: 50.5,
+          flag: "🇵🇭",
+        },
+        {
+          code: "VND",
+          name: "Vietnamese Dong",
+          symbol: "₫",
+          rateToUSD: 22750,
+          flag: "🇻🇳",
+        },
+        {
+          code: "BRL",
+          name: "Brazilian Real",
+          symbol: "R$",
+          rateToUSD: 5.25,
+          flag: "🇧🇷",
+        },
+        {
+          code: "TRY",
+          name: "Turkish Lira",
+          symbol: "₺",
+          rateToUSD: 8.45,
+          flag: "🇹🇷",
+        },
+        {
+          code: "PLN",
+          name: "Polish Zloty",
+          symbol: "zł",
+          rateToUSD: 3.89,
+          flag: "🇵🇱",
+        },
+        {
+          code: "EGP",
+          name: "Egyptian Pound",
+          symbol: "E£",
+          rateToUSD: 15.67,
+          flag: "🇪🇬",
+        },
+      ];
+
+      // Function to format currency with commas
+      function formatCurrency(amount) {
+        return amount
+          .toFixed(2)
+          .replace(/\d(?=(\d{3})+\.)/g, "$&,")
+          .replace(".00", "");
+      }
+
+      // Function to get exchange rate between two currencies
+      function getExchangeRate(fromCurrency, toCurrency) {
+        const from = currencies.find((c) => c.code === fromCurrency);
+        const to = currencies.find((c) => c.code === toCurrency);
+
+        if (!from || !to) return 0;
+
+        // Convert both currencies to USD equivalent first, then calculate the rate
+        return to.rateToUSD / from.rateToUSD;
+      }
+
+      // Function to populate currency dropdowns
+      function populateCurrencyDropdowns() {
+        const fromSelect = document.getElementById("fromCurrency");
+        const toSelect = document.getElementById("toCurrency");
+
+        // Clear existing options (except the first few we manually added)
+        while (fromSelect.options.length > 9) fromSelect.remove(9);
+        while (toSelect.options.length > 9) toSelect.remove(9);
+
+        // Add all currencies to dropdowns
+        currencies.forEach((currency) => {
+          if (
+            !Array.from(fromSelect.options).some(
+              (opt) => opt.value === currency.code
+            )
+          ) {
+            const option1 = new Option(
+              `${currency.name} (${currency.code})`,
+              currency.code
+            );
+            const option2 = new Option(
+              `${currency.name} (${currency.code})`,
+              currency.code
+            );
+            fromSelect.add(option1);
+            toSelect.add(option2);
+          }
+        });
+      }
+
+      // Function to display all currencies in a grid
+      function displayAllCurrencies() {
+        const grid = document.querySelector(".grid");
+        grid.innerHTML = "";
+
+        currencies.forEach((currency) => {
+          // Find USD rate for this currency (1 unit of currency = X USD)
+          const rate = getExchangeRate(currency.code, "USD");
+          const formattedRate = formatCurrency(1 / rate);
+
+          const card = document.createElement("div");
+          card.className =
+            "currency-card bg-white rounded-lg shadow-md p-4 transition transform hover:scale-102";
+          card.innerHTML = `
+                    <div class="flex items-center mb-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3 text-xl">
+                            <span>${currency.flag}</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">${currency.name}</h3>
+                            <p class="text-gray-600 text-sm">${currency.code}</p>
+                        </div>
+                    </div>
+                    <div class="text-sm">
+                        <p><span class="font-medium">Symbol:</span> ${currency.symbol}</p>
+                        <p><span class="font-medium">USD Rate:</span> 1 USD = ${formattedRate} ${currency.code}</p>
+                    </div>
+                `;
+
+          // Add click event to populate conversion fields
+          card.addEventListener("click", () => {
+            document.getElementById("fromCurrency").value = "USD";
+            document.getElementById("toCurrency").value = currency.code;
+            document.getElementById("amount").value = 1;
+            performConversion();
+          });
+
+          grid.appendChild(card);
+        });
+      }
+
+      // Function to perform currency conversion
+      function performConversion() {
+        const amount = parseFloat(document.getElementById("amount").value) || 0;
+        const fromCurrency = document.getElementById("fromCurrency").value;
+        const toCurrency = document.getElementById("toCurrency").value;
+
+        if (fromCurrency === toCurrency) {
+          document
+            .getElementById("conversionResult")
+            .classList.remove("hidden");
+          document.getElementById("fromAmount").textContent = amount;
+          document.getElementById("fromCurrencyText").textContent =
+            fromCurrency;
+          document.getElementById("toAmount").textContent = amount;
+          document.getElementById("toCurrencyText").textContent = toCurrency;
+          document.getElementById(
+            "rateInfo"
+          ).textContent = `1 ${fromCurrency} = 1 ${toCurrency}`;
+          return;
+        }
+
+        const rate = getExchangeRate(fromCurrency, toCurrency);
+        const convertedAmount = amount * rate;
+
+        document.getElementById("conversionResult").classList.remove("hidden");
+        document.getElementById("fromAmount").textContent = amount;
+        document.getElementById("fromCurrencyText").textContent = fromCurrency;
+        document.getElementById("toAmount").textContent =
+          formatCurrency(convertedAmount);
+        document.getElementById("toCurrencyText").textContent = toCurrency;
+        document.getElementById(
+          "rateInfo"
+        ).textContent = `1 ${fromCurrency} = ${formatCurrency(
+          rate
+        )} ${toCurrency}`;
+      }
+
+      // Function to search currencies
+      function searchCurrencies() {
+        const searchTerm = document
+          .getElementById("currencySearch")
+          .value.toLowerCase();
+        const cards = document.querySelectorAll(".currency-card");
+
+        cards.forEach((card) => {
+          const text = card.textContent.toLowerCase();
+          if (text.includes(searchTerm)) {
+            card.style.display = "block";
+
+            // Highlight matching text (simple approach)
+            const html = card.innerHTML;
+            const regex = new RegExp(searchTerm, "gi");
+            card.innerHTML = html.replace(
+              regex,
+              (match) => `<span class="search-highlight">${match}</span>`
+            );
+          } else {
+            card.style.display = "none";
+          }
+        });
+      }
+
+      // Function to swap currencies
+      function swapCurrencies() {
+        const fromCurrency = document.getElementById("fromCurrency");
+        const toCurrency = document.getElementById("toCurrency");
+        const temp = fromCurrency.value;
+        fromCurrency.value = toCurrency.value;
+        toCurrency.value = temp;
+        performConversion();
+      }
+
+      // Initialize the app
+      document.addEventListener("DOMContentLoaded", () => {
+        populateCurrencyDropdowns();
+        displayAllCurrencies();
+
+        // Event listeners
+        document
+          .getElementById("convertBtn")
+          .addEventListener("click", performConversion);
+        document
+          .getElementById("currencySearch")
+          .addEventListener("input", searchCurrencies);
+        document
+          .getElementById("swapCurrencies")
+          .addEventListener("click", swapCurrencies);
+
+        // Perform initial conversion
+        performConversion();
+      });
+    </script>
+  </body>
+</html>
